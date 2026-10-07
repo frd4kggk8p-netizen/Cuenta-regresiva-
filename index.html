@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cuenta regresiva</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#16202e; --leaf:#f3f4f6; --num:#16202e; --band:#c8352f; --band-text:#fff; --title:#f3f4f6; --muted:#9fb0c6;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1520;--leaf:#e8eaee}}
+:root[data-theme="dark"]{--bg:#0e1520;--leaf:#e8eaee}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--title);font-family:'Barlow',system-ui,sans-serif;min-height:100%;padding:32px 16px 48px}
+main{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:56px}
+h2{font-family:'Barlow Condensed','Arial Narrow',Impact,sans-serif;font-weight:700;font-size:clamp(26px,6vw,38px);margin:0 0 4px;letter-spacing:.5px}
+.sub{color:var(--muted);margin:0 0 20px;font-size:16px}
+.row{display:grid;grid-template-columns:minmax(0,300px)}
+.leaf{background:var(--leaf);border-radius:8px;overflow:hidden;text-align:center;box-shadow:0 6px 0 rgba(0,0,0,.35)}
+.band{background:var(--band);color:var(--band-text);font-family:'Barlow Condensed','Arial Narrow',sans-serif;font-weight:600;font-size:18px;padding:6px 0 5px;letter-spacing:1px;position:relative}
+.band::before,.band::after{content:"";position:absolute;top:50%;width:6px;height:6px;border-radius:50%;background:var(--bg);transform:translateY(-50%)}
+.band::before{left:10%}.band::after{right:10%}
+.num{position:relative;font-family:'Barlow Condensed','Arial Narrow',Impact,sans-serif;font-weight:700;color:var(--num);font-size:clamp(90px,32vw,160px);line-height:1.15;padding:6px 0 2px;font-variant-numeric:tabular-nums}
+.num::after{content:"";position:absolute;left:0;right:0;top:50%;height:2px;background:rgba(0,0,0,.18)}
+.num.flip{animation:flip .4s ease-out}
+@keyframes flip{0%{transform:rotateX(-70deg);opacity:.3}100%{transform:rotateX(0);opacity:1}}
+@media (prefers-reduced-motion:reduce){.num.flip{animation:none}}
+.done{color:var(--muted);margin-top:14px;min-height:1.2em;font-size:18px}
+</style>
+</head>
+<body>
+<main>
+  <section data-target="2026-11-21T00:00:00">
+    <h2>21 de noviembre de 2026</h2>
+    <p class="sub">Faltan:</p>
+    <div class="row"></div>
+    <p class="done"></p>
+  </section>
+  <section data-target="2027-05-22T00:00:00">
+    <h2>22 de mayo de 2027</h2>
+    <p class="sub">Faltan:</p>
+    <div class="row"></div>
+    <p class="done"></p>
+  </section>
+</main>
+<script>
+(function(){
+  var labels=["Días"];
+  var sections=[].slice.call(document.querySelectorAll("section")).map(function(s){
+    var row=s.querySelector(".row"),nums=[];
+    labels.forEach(function(l){
+      var leaf=document.createElement("div");leaf.className="leaf";
+      leaf.innerHTML='<div class="band">'+l+'</div><div class="num">00</div>';
+      row.appendChild(leaf);nums.push(leaf.querySelector(".num"));
+    });
+    return {el:s,target:new Date(s.dataset.target),nums:nums,done:s.querySelector(".done")};
+  });
+  function pad(n,min){var t=String(n);while(t.length<min)t="0"+t;return t}
+  function tick(){
+    var now=Date.now();
+    sections.forEach(function(s){
+      var d=Math.max(0,s.target-now),sec=Math.floor(d/1000);
+      var v=[Math.floor(sec/86400)];
+      v.forEach(function(x,i){
+        var t=pad(x,3),n=s.nums[i];
+        if(n.textContent!==t){n.textContent=t;n.classList.remove("flip");void n.offsetWidth;n.classList.add("flip")}
+      });
+      s.done.textContent=d===0?"¡Llegó el día!":"";
+    });
+  }
+  tick();setInterval(tick,1000);
+})();
+</script>
+</body>
+</html>
